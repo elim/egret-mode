@@ -121,3 +121,5 @@ font-family: Helvetica\">
    (format egret-el-apllescript-command-format
            egret-el-temporary-file
            egret-el-default-notebook)))
+
+(provide 'egret)
