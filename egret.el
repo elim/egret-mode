@@ -187,4 +187,4 @@ font-family: Helvetica\">
       (save-buffer))))
 
 
-(provide 'egret)
+(provide 'egret-mode)
