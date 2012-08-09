@@ -1,7 +1,23 @@
 ;; 2012 Takeru Naito
 ;; MIT License.
 
+
+
 (require 'time-date)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; define mode
+;;
+
+(define-derived-mode egret-mode nil "egret" "*nodoc*"
+  (define-key egret-mode-map (kbd "C-c C-c") 'egret-el-create-note-from-buffer))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; define constant
+;;
 
 (defconst egret-el-apllescript-command-format
   "\
@@ -35,7 +51,7 @@ end tell")
 </note>
 </en-export>
 "
-)
+  )
 
 (defconst egret-el-detail-format
 	"\
@@ -49,21 +65,82 @@ font-family: Helvetica\">
 </div>
 ")
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; define variable
+;;
+
 (defvar egret-el-timestamp "")
 (defvar egret-el-task-name "")
 (defvar egret-el-task-detail "")
-(defvar egret-el-temporary-file (expand-file-name "egret-el.enex" user-emacs-directory))
-
+(defvar egret-el-temporary-file
+  (expand-file-name "egret-el.enex" temporary-file-directory))
+(defvar egret-el-input-file
+  (expand-file-name "egret-el.txt" temporary-file-directory))
 (defvar egret-el-default-notebook "...inbox")
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; define function
+;;
+
+(defun egret-el-create-input-note-file ()
+  (interactive)
+  (let
+      ((buffer (find-file egret-el-input-file)))
+    (with-current-buffer buffer
+      (erase-buffer)
+      (egret-mode))))
+
+(defun egret-el-create-note-from-buffer ()
+  (interactive)
+  (let*
+      ((content (buffer-string))
+       (task-name (car (split-string content "\n")))
+       (task-detail (cdr (split-string content "\n")))
+       (task-detail (mapconcat #'identity task-detail "\n"))
+       (task-detail (replace-regexp-in-string "^\\s-+\\|\\s-+$" "" task-detail)))
+
+    (save-buffer)
+
+    (egret-el-internal-set-timestamp)
+    (egret-el-internal-set-task task-name task-detail)
+    (egret-el-internal-create-temporary-note-file)
+
+    (do-applescript
+     (format egret-el-apllescript-command-format
+             egret-el-temporary-file
+             egret-el-default-notebook))
+
+    (kill-buffer)))
+
+(defun egret-el-create-note-from-interactive (task-name task-detail)
+  "*nodoc*"
+  (interactive "sTask Name: \nsDetail: ")
+
+  (egret-el-internal-set-timestamp)
+  (egret-el-internal-set-task task-name task-detail)
+  (egret-el-internal-create-temporary-note-file)
+
+  (do-applescript
+   (format egret-el-apllescript-command-format
+           egret-el-temporary-file
+           egret-el-default-notebook)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; define function (internal)
+;;
 
 (defun egret-el-internal-format-detail ()
   "*nodoc*"
   (let
       ((details (split-string task-detail "\n")))
     (mapconcat (lambda (x)
-              (format egret-el-detail-format x))
-            details "")))
-
+                 (format egret-el-detail-format x))
+               details "")))
 
 (defun egret-el-internal-set-timestamp ()
   "*nodoc*"
@@ -109,17 +186,5 @@ font-family: Helvetica\">
       (insert (egret-el-internal-format-note))
       (save-buffer))))
 
-(defun egret-el-create-note (task-name task-detail)
-  "*nodoc*"
-  (interactive "sTask Name: \nsDetail: ")
-
-  (egret-el-internal-set-timestamp)
-  (egret-el-internal-set-task task-name task-detail)
-  (egret-el-internal-create-temporary-note-file)
-
-  (do-applescript
-   (format egret-el-apllescript-command-format
-           egret-el-temporary-file
-           egret-el-default-notebook)))
 
 (provide 'egret)
