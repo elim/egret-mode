@@ -108,10 +108,7 @@ font-family: Helvetica\">
     (egret-el-internal-set-task task-name task-detail)
     (egret-el-internal-create-temporary-note-file)
 
-    (do-applescript
-     (format egret-el-apllescript-command-format
-             egret-el-temporary-file
-             egret-el-default-notebook))
+    (egret-el-internal-post)
 
     (kill-buffer)))
 
@@ -123,16 +120,35 @@ font-family: Helvetica\">
   (egret-el-internal-set-task task-name task-detail)
   (egret-el-internal-create-temporary-note-file)
 
-  (do-applescript
-   (format egret-el-apllescript-command-format
-           egret-el-temporary-file
-           egret-el-default-notebook)))
-
+  (egret-el-internal-post))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; define function (internal)
 ;;
+
+(defun egret-el-internal-post ()
+  (funcall
+   (cond
+    ((eq system-type 'darwin)
+     #'egret-el-internal-post-mac)
+    ((eq system-type 'windows-nt)
+     #'egret-el-internal-post-win))))
+
+
+(defun egret-el-internal-post-mac ()
+  (do-applescript
+   (format egret-el-apllescript-command-format
+           egret-el-temporary-file
+           egret-el-default-notebook)))
+
+(defun egret-el-internal-post-win ()
+  (call-process
+   "C:/Program Files/Evernote/Evernote/ENScript"
+           nil nil nil
+           "importNotes"
+           "/s" egret-el-temporary-file
+           "/n" egret-el-default-notebook))
 
 (defun egret-el-internal-format-detail ()
   "*nodoc*"
