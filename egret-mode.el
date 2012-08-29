@@ -75,10 +75,10 @@ font-family: Helvetica\">
 (defvar egret-el-task-detail "")
 (defvar egret-el-temporary-file
   (expand-file-name "egret-el.enex" temporary-file-directory))
-(defvar egret-el-input-file
-  (expand-file-name "egret-el.txt" temporary-file-directory))
 (defvar egret-el-default-notebook "...inbox")
 (defvar egret-mode-hook nil)
+(defvar egret-cooperate-ddskk (featurep 'skk))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
