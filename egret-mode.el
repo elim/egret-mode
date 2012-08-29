@@ -1,8 +1,7 @@
 ;; 2012 Takeru Naito
 ;; MIT License.
 
-
-
+(require 'popwin)
 (require 'time-date)
 
 
@@ -78,20 +77,26 @@ font-family: Helvetica\">
 (defvar egret-el-input-file
   (expand-file-name "egret-el.txt" temporary-file-directory))
 (defvar egret-el-default-notebook "...inbox")
-
+(defvar egret-mode-hook nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; define function
 ;;
 
-(defun egret-el-create-input-note-file ()
+(defun egret-el-create-input-buffer ()
   (interactive)
-  (let
-      ((buffer (find-file egret-el-input-file)))
-    (with-current-buffer buffer
-      (erase-buffer)
-      (egret-mode))))
+  (let*
+      ((buffer  (get-buffer-create "*egret*"))
+       (windows (popwin:create-popup-window))
+       (popup (cadr windows)))
+
+    (select-window popup)
+    (switch-to-buffer buffer)
+    (erase-buffer)
+    (egret-mode)
+    (run-hooks egret-mode-hook)))
+
 
 (defun egret-el-create-note-from-buffer ()
   (interactive)
@@ -102,15 +107,12 @@ font-family: Helvetica\">
        (task-detail (mapconcat #'identity task-detail "\n"))
        (task-detail (replace-regexp-in-string "^\\s-+\\|\\s-+$" "" task-detail)))
 
-    (save-buffer)
-
     (egret-el-internal-set-timestamp)
     (egret-el-internal-set-task task-name task-detail)
     (egret-el-internal-create-temporary-note-file)
-
     (egret-el-internal-post)
+    (delete-window)))
 
-    (kill-buffer)))
 
 (defun egret-el-create-note-from-interactive (task-name task-detail)
   "*nodoc*"
