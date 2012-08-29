@@ -90,12 +90,15 @@ font-family: Helvetica\">
   (let*
       ((buffer  (get-buffer-create "*egret*"))
        (windows (popwin:create-popup-window))
-       (popup (cadr windows)))
+       (master-win (car windows))
+       (popup-win (cadr windows))
+       (skk-j-state (and (boundp skk-j-mode) skk-j-mode)))
 
-    (select-window popup)
+    (select-window popup-win)
     (switch-to-buffer buffer)
     (erase-buffer)
     (egret-mode)
+    (when (and egret-cooperate-ddskk skk-j-state) (skk-j-mode-on))
     (run-hooks egret-mode-hook)))
 
 
