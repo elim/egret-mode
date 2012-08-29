@@ -13,6 +13,7 @@
 (define-derived-mode egret-mode nil "egret" "*nodoc*"
   (define-key egret-mode-map (kbd "C-c C-c") 'egret-el-create-note-from-buffer))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; define constant
@@ -124,6 +125,7 @@ font-family: Helvetica\">
 
   (egret-el-internal-post))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; define function (internal)
@@ -144,6 +146,7 @@ font-family: Helvetica\">
            egret-el-temporary-file
            egret-el-default-notebook)))
 
+
 (defun egret-el-internal-post-win ()
   (call-process
    "C:/Program Files/Evernote/Evernote/ENScript"
@@ -152,6 +155,7 @@ font-family: Helvetica\">
            "/s" egret-el-temporary-file
            "/n" egret-el-default-notebook))
 
+
 (defun egret-el-internal-format-detail ()
   "*nodoc*"
   (let
@@ -159,6 +163,7 @@ font-family: Helvetica\">
     (mapconcat (lambda (x)
                  (format egret-el-detail-format x))
                details "")))
+
 
 (defun egret-el-internal-set-timestamp ()
   "*nodoc*"
@@ -185,16 +190,20 @@ font-family: Helvetica\">
                      )))
     (replace-regexp-in-string "\n" "" note)))
 
+
 (defun egret-el-internal-set-task (task-name task-detail)
   (egret-el-internal-set-task-name task-name)
   (egret-el-internal-set-task-detail task-detail))
 
+
 (defun egret-el-internal-set-task-name (task-name)
   (setq egret-el-task-name task-name))
+
 
 (defun egret-el-internal-set-task-detail (task-detail)
   (setq egret-el-task-detail
         (egret-el-internal-format-detail)))
+
 
 (defun egret-el-internal-create-temporary-note-file ()
   (let
